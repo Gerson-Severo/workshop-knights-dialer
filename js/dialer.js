@@ -1,39 +1,76 @@
 export default {
-	reachableKeys,
-	countPaths,
-	listAcyclicPaths
+  reachableKeys, // Exporta a função reachableKeys
+  countPaths, // Exporta a função countPaths
+  listAcyclicPaths, // Exporta a função listAcyclicPaths
 };
 
+// Define o layout do teclado do telefone
+var dialpad = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9],
+  [undefined, 0, undefined],
+];
 
-// ****************************
-
+// Função reachableKeys: Retorna um array de teclas que podem ser alcançadas a partir da tecla inicial
 function reachableKeys(startingDigit) {
-	// TODO: return which digits a Knight's move
-	// can hop to from a given starting digit/key
-	//
-	// e.g. 3 -> [ 4, 8 ]
-	//      4 -> [ 3, 9, 0 ]
-	//      5 -> []
-	return [];
+  var nearbyKeys = []; // Inicializa um array para armazenar as teclas próximas
+
+  // Percorre todas as linhas do teclado
+  for (let [rowIdx, row] of dialpad.entries()) {
+    let colIdx = row.indexOf(startingDigit); // Encontra a coluna da tecla inicial na linha atual
+    if (colIdx != -1) {
+      // Se a tecla inicial foi encontrada na linha atual
+      // Verifica todas as possíveis combinações de movimentos do cavalo
+      for (let rowMove of [-2, -1, 1, 2]) {
+        for (let colMove of [-2, -1, 1, 2]) {
+          // Considera apenas as combinações onde as magnitudes dos movimentos de linha e coluna são diferentes
+          if (Math.abs(rowMove) != Math.abs(colMove)) {
+            // Verifica se a tecla resultante do movimento está dentro dos limites do teclado e não é undefined
+            if (
+              rowIdx + rowMove >= 0 &&
+              rowIdx + rowMove <= 3 &&
+              colIdx + colMove >= 0 &&
+              colIdx + colMove <= 2 &&
+              dialpad[rowIdx + rowMove][colIdx + colMove] != undefined
+            ) {
+              // Adiciona a tecla resultante ao array de teclas próximas
+              nearbyKeys.push(dialpad[rowIdx + rowMove][colIdx + colMove]);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Retorna o array de teclas próximas
+  return nearbyKeys;
 }
 
-function countPaths(startingDigit,hopCount) {
-	// TODO: given the digit/key to start from and
-	// the number of hops to take, return a count
-	// of all the possible paths that could be
-	// traversed
-	return 0;
+// Função countPaths: Retorna o número de caminhos possíveis a partir da tecla inicial com um número específico de saltos
+function countPaths(startingDigit, hopCount) {
+  if (hopCount == 0) return 1; // Se o número de saltos é 0, retorna 1
+  var pathCount = 0; // Inicializa a contagem de caminhos
+  // Para cada tecla que pode ser alcançada a partir da tecla inicial
+  for (let digit of reachableKeys(startingDigit)) {
+    // Adiciona ao contador o número de caminhos possíveis a partir da tecla atual com um número menor de saltos
+    pathCount += countPaths(digit, hopCount - 1);
+  }
+  // Retorna a contagem de caminhos
+  return pathCount;
 }
 
+// Função listAcyclicPaths: Retorna uma lista de todos os caminhos possíveis a partir da tecla inicial sem repetir teclas
 function listAcyclicPaths(startingDigit) {
-	// TODO: given the digit/key to start from,
-	// return a list of the distinct acyclic
-	// paths that are possible to traverse
-	//
-	// e.g. [
-	//   [4, 3, 8, 1, 6, 7, 2, 9],
-	//   [4, 3, 8, 1, 6, 0],
-	//   ...
-	// ]
-	return [];
+  var paths = []; // Inicializa um array para armazenar os caminhos
+  var nextHops = reachableKeys(startingDigit); // Obtém um array de teclas que podem ser alcançadas a partir da tecla inicial
+  // Para cada tecla no array de teclas próximas
+  for (let nextHop of nextHops) {
+    // Inicializa um novo caminho com a tecla inicial e a tecla próxima
+    let path = [startingDigit, nextHop];
+    // Continua o caminho a partir da tecla próxima
+    followPath(path, paths);
+  }
+  // Retorna o array de caminhos
+  return paths;
 }
