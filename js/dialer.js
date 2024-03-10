@@ -74,3 +74,24 @@ function listAcyclicPaths(startingDigit) {
   // Retorna o array de caminhos
   return paths;
 }
+
+// Função followPath: Continua um caminho a partir da última tecla do caminho atual
+function followPath(path, paths) {
+  var nextHops = reachableKeys(path[path.length - 1]); // Obtém um array de teclas que podem ser alcançadas a partir da última tecla do caminho atual
+  var pathForwardFound = false; // Inicializa uma variável para verificar se um caminho para frente foi encontrado
+  // Para cada tecla no array de teclas próximas
+  for (let nextHop of nextHops) {
+    // Verifica se a tecla próxima não está no caminho atual
+    if (!path.includes(nextHop)) {
+      pathForwardFound = true; // Um caminho para frente foi encontrado
+      let nextPath = [...path, nextHop]; // Cria um novo caminho com a tecla próxima
+      // Continua o caminho a partir da tecla próxima
+      followPath(nextPath, paths);
+    }
+  }
+  // Se nenhum caminho para frente foi encontrado
+  if (!pathForwardFound) {
+    // O caminho atual está completo, então adiciona-o ao array de caminhos
+    paths.push(path);
+  }
+}
